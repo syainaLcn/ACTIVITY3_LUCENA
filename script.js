@@ -1,5 +1,52 @@
 
 (function () {
+  const POSTER_W = 500;
+  const POSTER_H = 750;
+  const MARGIN = 24; 
+
+  function fitPoster() {
+    const availW = window.innerWidth - MARGIN;
+    const availH = window.innerHeight - MARGIN;
+    const scale = Math.min(availW / POSTER_W, availH / POSTER_H, 1);
+    document.documentElement.style.setProperty('--poster-scale', scale);
+  }
+
+  fitPoster();
+  window.addEventListener('resize', fitPoster);
+  window.addEventListener('orientationchange', fitPoster);
+})();
+
+(function () {
+  const portrait = document.getElementById('portrait');
+  const overlay = document.getElementById('poemOverlay');
+  const closeBtn = document.getElementById('poemClose');
+  if (!portrait || !overlay || !closeBtn) return;
+
+  function openOverlay() {
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+  function closeOverlay() {
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
+
+  portrait.addEventListener('click', (e) => {
+    if (e.target.closest('.poem-overlay')) return;
+    openOverlay();
+  });
+
+  closeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeOverlay();
+  });
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeOverlay();
+  });
+})();
+
+(function () {
   const portrait = document.getElementById('portrait');
   if (!portrait) return;
 
@@ -21,6 +68,7 @@
   });
   portrait.addEventListener('pointerup', deactivate);
 
+  // Safety net: if the pointer is lifted anywhere on the page, reset.
   window.addEventListener('pointerup', deactivate);
   window.addEventListener('blur', deactivate);
 })();
