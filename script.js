@@ -68,9 +68,40 @@
   });
   portrait.addEventListener('pointerup', deactivate);
 
-  // Safety net: if the pointer is lifted anywhere on the page, reset.
   window.addEventListener('pointerup', deactivate);
   window.addEventListener('blur', deactivate);
+})();
+
+(function () {
+  const portrait = document.getElementById('portrait');
+  const hint = document.getElementById('cursorHint');
+  if (!portrait || !hint) return;
+
+  function moveHint(e) {
+    const rect = portrait.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    hint.style.transform = `translate(${x}px, ${y}px)`;
+  }
+
+  portrait.addEventListener('pointerenter', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    hint.classList.add('is-visible');
+    moveHint(e);
+  });
+
+  portrait.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    moveHint(e);
+  });
+
+  portrait.addEventListener('pointerleave', () => {
+    hint.classList.remove('is-visible');
+  });
+
+  portrait.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse') hint.classList.remove('is-visible');
+  });
 })();
 
 (function () {
