@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shaina — A Life in Progress</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="poster">
+ <div class="intro" id="intro" aria-hidden="true">
+  <div class="veils">
+   <span class="veil"></span><span class="veil"></span><span class="veil"></span><span class="veil"></span>
+   <span class="veil"></span><span class="veil"></span><span class="veil"></span><span class="veil"></span>
+   <span class="veil"></span><span class="veil"></span><span class="veil"></span><span class="veil"></span>
+   <span class="veil"></span><span class="veil"></span><span class="veil"></span><span class="veil"></span>
+  </div>
+  <div class="intro__shine"></div>
+ </div>
+
+ <img class="poster-base" src="images/poster.png" alt="Shaina — A Life in Progress movie poster">
+ <div class="light"></div>
+ <div class="grain"></div>
+ <div class="spotlight"></div>
+ <div class="titleShine"></div>
+ <span class="star s1"></span><span class="star s2"></span><span class="star s3"></span>
+ <span class="star s4"></span><span class="star s5"></span><span class="star s6"></span>
+ <span class="dust d1"></span><span class="dust d2"></span><span class="dust d3"></span><span class="dust d4"></span>
+ <div class="comingSoon"></div>
+ <div class="focusDim"></div>
+
+ <!-- only window (right side) memories are removed; everything else stays clickable -->
+ <button class="hotspot h1" data-title="The Little Girl" data-text="The younger version of Shaina — curious, imaginative, and quietly building the dreams that would follow her." aria-label="Open childhood details"></button>
+ <button class="hotspot h2" data-title="The Soft Heart" data-text="A reminder of the tenderness she carries: the little things, the memories, and the beings she has always cared about." aria-label="Open memory details"></button>
+ <button class="hotspot h3" data-title="Still Dreaming" data-text="Even after growing up, some parts of her stayed the same — the love for quiet nights, stories, and bigger dreams." aria-label="Open dream details"></button>
+ <button class="hotspot h4" data-title="Shaina" data-text="This is the center of the story: a girl figuring herself out, learning to grow without losing the softer parts of who she is." aria-label="Open Shaina details"></button>
+
+ <div class="modal" id="detailModal" aria-hidden="true">
+   <div class="detail" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+     <button class="close" id="closeModal" aria-label="Close">×</button>
+     <h2 id="detailTitle">Shaina</h2>
+     <div class="line"></div>
+     <p id="detailText"></p>
+     <small>CLICK ANY MEMORY TO DISCOVER ITS STORY</small>
+   </div>
+ </div>
+</div>
+
+<script>
+const modal=document.getElementById('detailModal');
+const title=document.getElementById('detailTitle');
+const text=document.getElementById('detailText');
+const close=document.getElementById('closeModal');
+const poster=document.querySelector('.poster');
+
+let activeButton=null;
+
+function spawnEmote(btn){
+  const glyphs=['♡','✦','♥','✧'];
+  const count=5;
+  for(let i=0;i<count;i++){
+    const p=document.createElement('span');
+    p.className='emote-particle';
+    p.textContent=glyphs[Math.floor(Math.random()*glyphs.length)];
+    const xOff=Math.round((Math.random()*70-35));
+    const delay=(Math.random()*0.18).toFixed(2);
+    p.style.left=`calc(50% + ${xOff}px)`;
+    p.style.animationDelay=delay+'s';
+    btn.appendChild(p);
+    setTimeout(()=>p.remove(),1400);
+  }
+}
+
+function openStory(btn){
+  title.textContent=btn.dataset.title;
+  text.textContent=btn.dataset.text;
+  modal.classList.remove('show');
+  void modal.offsetWidth;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden','false');
+  poster.classList.remove('focusing');
+}
+
+/* Plays the "turning to greet you" flash/sweep on Shaina (h4) before her story opens */
+function playGreeting(btn,onDone){
+  const flash=document.createElement('span');
+  flash.className='charFlash';
+  const sweep=document.createElement('span');
+  sweep.className='charSweep';
+  btn.appendChild(flash);
+  btn.appendChild(sweep);
+  btn.classList.remove('greeting');
+  void btn.offsetWidth;
+  btn.classList.add('greeting');
+  spawnEmote(btn);
+  setTimeout(()=>{
+    flash.remove();
+    sweep.remove();
+    btn.classList.remove('greeting');
+    onDone();
+  },720);
+}
+
+document.querySelectorAll('.hotspot').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    if(activeButton) activeButton.classList.remove('active');
+    activeButton=btn;
+
+    if(btn.classList.contains('h4')){
+      /* Main character: brief flash/turn acknowledgment, then reveal her story */
+      playGreeting(btn,()=>{
+        btn.classList.remove('active');
+        void btn.offsetWidth;
+        btn.classList.add('active');
+        openStory(btn);
+      });
+    } else {
+      btn.classList.remove('active');
+      void btn.offsetWidth;
+      btn.classList.add('active');
+      spawnEmote(btn);
+      openStory(btn);
+    }
+  });
+  btn.addEventListener('pointerenter',()=>{
+    if(modal.classList.contains('show')) return;
+    const pr=poster.getBoundingClientRect();
+    const br=btn.getBoundingClientRect();
+    const cx=br.left+br.width/2-pr.left;
+    const cy=br.top+br.height/2-pr.top;
+    const rx=br.width/2+26;
+    const ry=br.height/2+26;
+    poster.style.setProperty('--fx',cx+'px');
+    poster.style.setProperty('--fy',cy+'px');
+    poster.style.setProperty('--frx',rx+'px');
+    poster.style.setProperty('--fry',ry+'px');
+    poster.classList.add('focusing');
+  });
+  btn.addEventListener('pointerleave',()=>{poster.classList.remove('focusing')});
+});
+
+function closeDetails(){
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden','true');
+  if(activeButton){activeButton.classList.remove('active');activeButton=null}
+}
+close.addEventListener('click',closeDetails);
+modal.addEventListener('click',e=>{if(e.target===modal)closeDetails()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetails()});
+</script>
+</body>
+</html>
